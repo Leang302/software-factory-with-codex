@@ -3,7 +3,7 @@
 - **Run ID:** `2026-10-15-todo-demo`
 - **Reviewer:** actual Codex subagent `/root/reviewer`
 - **Inspected commit/diff:** `a42dbd2ecd8602eba021146cfd48542dd7551ce2..36b3ee0f411f5c1936c6c06e9670dba551bf4c11`
-- **Verdict:** changes requested
+- **Verdict:** pass after repair re-review at `6f72c799a750ddb6ae1b59139a58bfdace4658ab` (original findings retained below for history)
 
 ## Findings
 
@@ -49,3 +49,52 @@ No `BLOCKER` or `HIGH` findings were identified.
 | Focus-ring contrast calculation against `#ffffff`, `#eef2f7`, and `#2457c5` | `2.13:1`, `1.89:1`, and `3.04:1`, respectively |
 
 This review did not modify product code, stage or commit changes, merge, deploy, or run destructive commands.
+
+## Re-review — Repair iteration 1 — 2026-10-15
+
+- **Reviewer:** actual Codex subagent `/root/reviewer`
+- **Repair diff inspected:** `8405636866913a2f7eb1a65a1df0eec9cd072686..6f72c799a750ddb6ae1b59139a58bfdace4658ab`
+- **Tested commit:** `6f72c799a750ddb6ae1b59139a58bfdace4658ab`
+- **Re-review verdict:** pass
+
+### Finding dispositions
+
+#### R-01 — RESOLVED
+
+- `app/app.js:41-53` now passes an explicit focus target through a successful commit and restores it after the replacement controls are in the document.
+- `app/app.js:70-75` targets the replacement checkbox after a toggle, including rerendering and refocusing the authoritative prior state when persistence fails.
+- `app/app.js:92-95` and `app/focus-policy.js:5-15` move focus after deletion to the next Todo's Delete button, then the previous Todo's Delete button, and finally the title input when no Todo remains. A failed delete write performs no render, so the existing focused button remains in place.
+- `app/app.js:97-115` records newly created controls by Todo ID and restores focus only after `replaceChildren()` completes. Stored IDs remain data keys in a `Map`; they are not interpreted as selectors or markup.
+- The new policy tests cover the focus target choices and direct focus calls. An independent in-memory DOM wiring check also exercised the actual `app.js` handlers for successful toggle, middle/final deletion, failed toggle persistence, and failed delete persistence; all focus assertions passed.
+
+R-01's keyboard-focus defect is no longer present in the reviewed code.
+
+#### R-02 — RESOLVED
+
+- `app/styles.css:6-7` and `app/styles.css:39-44` replace the low-contrast orange outline with a three-pixel `#111827` ring and a two-pixel white halo.
+- The outer ring measures approximately `17.74:1` against white and `15.78:1` against the `#eef2f7` page background. The halo measures approximately `6.47:1` against the Add button and `7.52:1` against the Delete button.
+- The checked-in accessibility tests calculate these ratios from the CSS custom properties and require at least `3:1` against the relevant adjacent surfaces.
+
+R-02's focus-indicator contrast defect is no longer present in the reviewed code.
+
+### Regression, maintainability, and security review
+
+- No new `BLOCKER`, `HIGH`, `MEDIUM`, or `LOW` finding was identified in the repair diff.
+- The extracted `focus-policy.js` is small, deterministic, independently testable, and keeps focus destination rules out of DOM construction. Its fallback to the title input is safe if a requested replacement control is unexpectedly absent.
+- The server adds only the exact `/focus-policy.js` pathname to its existing static allowlist. Request data still cannot select a filesystem path, and traversal protection and response security headers are unchanged.
+- The repair introduces no new user-data sink. Todo titles continue to reach `textContent` and DOM `setAttribute` only; IDs are used solely as `Map` keys in the new path.
+- Storage authority remains unchanged: in-memory state advances only after serialization and `localStorage.setItem()` succeed. The new failed-toggle rerender restores both persisted visual state and keyboard focus.
+- The added tests materially improve coverage of the original findings. They do not instantiate a real browser rendering or accessibility tree, so final visual and assistive-technology behavior remains within the independent Tester's verification boundary rather than an unresolved review finding.
+
+### Re-review evidence
+
+| Check | Result |
+| --- | --- |
+| Inspected exact repair diff and surrounding application/server code | Completed |
+| `npm test` | Exit `0`; 21 passed, 0 failed |
+| `node --check app/app.js`, `node --check app/focus-policy.js`, and `node --check scripts/server.mjs` | Exit `0` |
+| `git diff --check 8405636866913a2f7eb1a65a1df0eec9cd072686..6f72c799a750ddb6ae1b59139a58bfdace4658ab` | Exit `0` |
+| Independent in-memory DOM exercise of actual `app.js` success and failed-storage focus paths | Exit `0`; all assertions passed |
+| Static security regression trace of DOM sinks, storage authority, `Map` key use, and the server allowlist | No regression found |
+
+The re-review changed only this report. It did not modify product code, coordinate conclusions with the Tester, stage or commit files, merge, deploy, or run destructive commands.
