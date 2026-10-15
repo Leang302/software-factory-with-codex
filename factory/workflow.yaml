@@ -1,0 +1,58 @@
+version: 1
+name: minimal-multi-agent-software-factory
+
+roles:
+  orchestrator: coordinates gates, handoffs, repair loops, and final evidence
+  planner: inspects read-only and defines scope plus acceptance criteria
+  builder: implements approved scope on an isolated branch or worktree
+  reviewer: independently audits the diff without editing product code
+  tester: independently executes acceptance-focused checks without editing product code
+
+artifacts:
+  root: factory/runs/<run-id>
+  preflight: 00-preflight.md
+  specification: 01-spec.md
+  build: 02-build.md
+  review: 03-review.md
+  test: 04-test.md
+  final: 05-final.md
+
+stages:
+  - id: preflight
+    owner: orchestrator
+    requires: []
+  - id: plan
+    owner: planner
+    requires: [preflight]
+  - id: approve
+    owner: human
+    requires: [plan]
+    gate: explicit
+  - id: build
+    owner: builder
+    requires: [approve]
+    isolation: branch-or-worktree
+  - id: review
+    owner: reviewer
+    requires: [build]
+    may_run_with: [test]
+  - id: test
+    owner: tester
+    requires: [build]
+    may_run_with: [review]
+  - id: repair
+    owner: builder
+    requires: [review, test]
+    repeat_until: no-blocker-or-high-findings
+  - id: final
+    owner: orchestrator
+    requires: [repair]
+
+policies:
+  real_subagents_when_available: true
+  sequential_fallback_must_be_disclosed: true
+  destructive_commands_require_human_approval: true
+  auto_merge: false
+  auto_deploy: false
+  stay_inside_repository: true
+  reports_are_markdown: true
