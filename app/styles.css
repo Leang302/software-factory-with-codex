@@ -3,6 +3,8 @@
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #172033;
   background: #eef2f7;
+  --focus-ring: #111827;
+  --focus-halo: #fff;
 }
 
 * {
@@ -36,8 +38,9 @@ button:hover {
 
 button:focus-visible,
 input:focus-visible {
-  outline: 3px solid #f0a202;
-  outline-offset: 2px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 2px var(--focus-halo);
 }
 
 .todo-app {

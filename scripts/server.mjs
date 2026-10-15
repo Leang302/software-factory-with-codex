@@ -11,6 +11,7 @@ const files = new Map([
   ["/index.html", { url: new URL("../app/index.html", import.meta.url), type: "text/html; charset=utf-8" }],
   ["/styles.css", { url: new URL("../app/styles.css", import.meta.url), type: "text/css; charset=utf-8" }],
   ["/app.js", { url: new URL("../app/app.js", import.meta.url), type: "text/javascript; charset=utf-8" }],
+  ["/focus-policy.js", { url: new URL("../app/focus-policy.js", import.meta.url), type: "text/javascript; charset=utf-8" }],
   ["/todo-model.js", { url: new URL("../app/todo-model.js", import.meta.url), type: "text/javascript; charset=utf-8" }],
 ]);
 

@@ -7,6 +7,11 @@ import {
   serializeTodos,
   toggleTodo,
 } from "./todo-model.js";
+import {
+  focusAfterDelete,
+  focusAfterToggle,
+  restoreFocus,
+} from "./focus-policy.js";
 
 const form = document.querySelector("#todo-form");
 const titleInput = document.querySelector("#todo-title");
@@ -33,7 +38,7 @@ function showValidation(message = "") {
   titleInput.setAttribute("aria-invalid", String(message.length > 0));
 }
 
-function commit(nextTodos) {
+function commit(nextTodos, focusTarget) {
   try {
     localStorage.setItem(STORAGE_KEY, serializeTodos(nextTodos));
     storageMessage.textContent = "";
@@ -44,11 +49,11 @@ function commit(nextTodos) {
   }
 
   todos = nextTodos;
-  render();
+  render(focusTarget);
   return true;
 }
 
-function createTodoItem(todo) {
+function createTodoItem(todo, controlsByTodoId) {
   const item = document.createElement("li");
   item.className = "todo-item";
   if (todo.completed) {
@@ -63,8 +68,9 @@ function createTodoItem(todo) {
   checkbox.checked = todo.completed;
   checkbox.setAttribute("aria-label", `Mark ${todo.title} as ${todo.completed ? "incomplete" : "complete"}`);
   checkbox.addEventListener("change", () => {
-    if (!commit(toggleTodo(todos, todo.id))) {
-      render();
+    const focusTarget = focusAfterToggle(todo.id);
+    if (!commit(toggleTodo(todos, todo.id), focusTarget)) {
+      render(focusTarget);
     }
   });
 
@@ -84,19 +90,29 @@ function createTodoItem(todo) {
   deleteButton.textContent = "Delete";
   deleteButton.setAttribute("aria-label", `Delete ${todo.title}`);
   deleteButton.addEventListener("click", () => {
-    commit(deleteTodo(todos, todo.id));
+    const focusTarget = focusAfterDelete(todos, todo.id);
+    commit(deleteTodo(todos, todo.id), focusTarget);
+  });
+
+  controlsByTodoId.set(todo.id, {
+    delete: deleteButton,
+    toggle: checkbox,
   });
 
   item.append(toggleLabel, state, deleteButton);
   return item;
 }
 
-function render() {
-  todoList.replaceChildren(...todos.map(createTodoItem));
+function render(focusTarget) {
+  const controlsByTodoId = new Map();
+  todoList.replaceChildren(
+    ...todos.map((todo) => createTodoItem(todo, controlsByTodoId)),
+  );
   emptyState.hidden = todos.length > 0;
 
   const remaining = todos.filter((todo) => !todo.completed).length;
   todoCount.textContent = `${remaining} ${remaining === 1 ? "item" : "items"} remaining`;
+  restoreFocus(focusTarget, controlsByTodoId, titleInput);
 }
 
 form.addEventListener("submit", (event) => {

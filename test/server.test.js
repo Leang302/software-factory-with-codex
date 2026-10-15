@@ -61,6 +61,18 @@ test("server serves the Todo page at the root", async (t) => {
   assert.match(response.headers["content-security-policy"], /default-src 'self'/);
 });
 
+test("server serves the focus policy module required by the browser app", async (t) => {
+  const server = createTodoServer();
+  await listen(server);
+  t.after(() => close(server));
+
+  const response = await get(server, "/focus-policy.js");
+
+  assert.equal(response.statusCode, 200);
+  assert.match(response.headers["content-type"], /^text\/javascript/);
+  assert.match(response.body, /export function restoreFocus/);
+});
+
 test("server returns 404 for an unknown path", async (t) => {
   const server = createTodoServer();
   await listen(server);
