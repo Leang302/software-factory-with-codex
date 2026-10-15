@@ -1,0 +1,163 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #172033;
+  background: #eef2f7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  padding: clamp(1rem, 5vw, 3rem) 0.75rem;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  min-height: 2.75rem;
+  border: 0;
+  border-radius: 0.45rem;
+  padding: 0.6rem 1rem;
+  color: #fff;
+  background: #2457c5;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #17439f;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid #f0a202;
+  outline-offset: 2px;
+}
+
+.todo-app {
+  width: min(100%, 42rem);
+  margin: 0 auto;
+  border-radius: 0.75rem;
+  padding: clamp(1rem, 4vw, 2rem);
+  background: #fff;
+  box-shadow: 0 0.5rem 2rem rgb(30 45 70 / 12%);
+}
+
+h1 {
+  margin-top: 0;
+}
+
+#todo-form > label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 650;
+}
+
+.add-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+}
+
+#todo-title {
+  min-width: 0;
+  min-height: 2.75rem;
+  border: 1px solid #64748b;
+  border-radius: 0.45rem;
+  padding: 0.55rem 0.7rem;
+}
+
+#todo-title[aria-invalid="true"] {
+  border-color: #b42318;
+}
+
+.message {
+  min-height: 1.5em;
+  margin: 0.35rem 0;
+}
+
+.validation,
+.storage {
+  color: #9c1c13;
+}
+
+.count {
+  color: #475569;
+}
+
+#todo-list {
+  display: grid;
+  gap: 0.65rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.todo-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem 0.75rem;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.55rem;
+  padding: 0.75rem;
+}
+
+.todo-toggle {
+  display: flex;
+  min-width: 0;
+  gap: 0.65rem;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.todo-toggle input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0.1rem 0 0;
+  flex: 0 0 auto;
+}
+
+.todo-title {
+  overflow-wrap: anywhere;
+}
+
+.todo-state {
+  grid-column: 1;
+  margin-left: 1.9rem;
+  color: #475569;
+  font-size: 0.875rem;
+}
+
+.todo-item--completed .todo-title {
+  text-decoration: line-through;
+}
+
+.delete-button {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  background: #a61b1b;
+}
+
+.delete-button:hover {
+  background: #7f1515;
+}
+
+@media (max-width: 24rem) {
+  .add-row,
+  .todo-item {
+    grid-template-columns: 1fr;
+  }
+
+  .delete-button {
+    grid-column: 1;
+    grid-row: auto;
+    width: 100%;
+  }
+}

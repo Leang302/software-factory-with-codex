@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A minimal local Todo application">
+    <title>Todo</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="todo-app">
+      <h1>Todo</h1>
+
+      <form id="todo-form" novalidate>
+        <label for="todo-title">What needs to be done?</label>
+        <div class="add-row">
+          <input
+            id="todo-title"
+            name="title"
+            type="text"
+            autocomplete="off"
+            aria-describedby="validation-message"
+          >
+          <button type="submit">Add</button>
+        </div>
+        <p id="validation-message" class="message validation" role="alert"></p>
+      </form>
+
+      <p id="storage-message" class="message storage" role="status"></p>
+      <p id="todo-count" class="count" aria-live="polite"></p>
+      <p id="empty-state">No todos yet. Add one above.</p>
+      <ul id="todo-list" aria-label="Todo items"></ul>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
